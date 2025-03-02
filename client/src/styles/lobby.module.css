@@ -1,0 +1,51 @@
+.lobbyContainer {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;  /* Centers the content */
+    justify-content: flex-start;  /* Positions the title at the top */
+    padding: 20px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    text-align: center;
+}
+
+.userCount {
+    font-size: 20px;
+    font-weight: 600;
+    color: #007bff;
+    margin-bottom: 20px;
+}
+
+.blockList {
+    list-style: none;
+    padding: 0;
+    margin-top: 100px;
+    width: 100%;
+    max-width: 600px;
+}
+
+.blockItem {
+    margin-bottom: 15px;
+}
+
+.blockLink {
+    text-decoration: none;
+}
+
+.blockButton {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    background-color: #527eae;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+.blockButton:hover {
+    background-color: #95afcc;
+}

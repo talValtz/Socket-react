@@ -42,34 +42,115 @@ const mentors = {};
     io.emit("connecting_users", connectedUsersSet.size);
     console.log(`🔗 User Connected: ${socket.id}, Total Users: ${connectedUsersSet.size}`);
     
-    socket.on('joinRoom', (id) => {
-        console.log("jesdbehbs");
-        socket.join(id);
-        console.log(`${socket.id} joined room ${id}`);
-        
-
-        // Add user to the room tracking
-       if (!activeRooms[id]) {
-            activeRooms[id] = [];
+    socket.on("joinRoom", async ({ blockId }) => {
+        if (!blockId) {
+            console.error("❌ שגיאה: blockId לא התקבל מהלקוח.");
+            return;
         }
-        activeRooms[id].push(socket.id);
-
-        // Assign first user as mentor
-        if (!mentors[id]) {
-            mentors[id] = socket.id;
-            console.log(`🏆 Mentor for room ${id}: ${socket.id}`);
+    
+        console.log(`📌 הצטרפות לחדר ${blockId}...`);
+        socket.join(blockId);
+    
+        // ✅ יצירת רשימה חדשה אם החדר לא קיים
+        if (!activeRooms[blockId]) {
+            activeRooms[blockId] = [];
         }
-
-        console.log(`${socket.id} joined room ${JSON.stringify(id)}, Users: ${activeRooms[id].length}`);
-
-        // Send updated user count and mentor to the room
-        io.to(id).emit("roomUsers", {
-            userCount: activeRooms[id].length,
-            mentor: mentors[id],
-            blockId: id
-
-        });
+    
+        // ✅ מניעת כפילות: רק אם המשתמש לא נמצא כבר ברשימה
+        if (!activeRooms[blockId].includes(socket.id)) {
+            activeRooms[blockId].push(socket.id);
+    
+            try {
+                // ✅ עדכון מסד הנתונים בהתאם למספר המשתמשים ב-`activeRooms`
+                const updatedBlock = await CodeBlock.findByIdAndUpdate(
+                    blockId,
+                    { $set: { participants: activeRooms[blockId].length } }, // ✅ מספר המשתמשים בפועל
+                    { new: true }
+                );
+    
+                if (!updatedBlock) {
+                    console.error(`❌ שגיאה: CodeBlock עם מזהה ${blockId} לא נמצא.`);
+                    return;
+                }
+    
+                console.log(`✅ מספר המשתתפים בחדר ${blockId}: ${updatedBlock.participants}`);
+    
+                // ✅ קביעת מנטור ראשון
+                if (!mentors[blockId]) {
+                    mentors[blockId] = socket.id;
+                    console.log(`🏆 המנטור של חדר ${blockId}: ${socket.id}`);
+                }
+    
+                // ✅ שליחת עדכון לכל המשתמשים
+                io.to(blockId).emit("roomUsers", {
+                    userCount: updatedBlock.participants,
+                    mentor: mentors[blockId],
+                    blockId: blockId
+                });
+    
+            } catch (error) {
+                console.error(`❌ שגיאה בעדכון מספר המשתתפים:`, error);
+            }
+        } else {
+            console.log(`⚠️ משתמש ${socket.id} כבר רשום בחדר ${blockId}, לא מוסיפים שוב.`);
+        }
     });
+    
+    
+
+    socket.on("leaveRoom", async ({ blockId }) => {
+        console.log(`🚪 ${socket.id} יוצא מהחדר ${blockId}`);
+        
+        try {
+            if (!activeRooms[blockId]) {
+                console.error(`⚠️ החדר ${blockId} לא נמצא.`);
+                return;
+            }
+    
+            // ✅ הסרת המשתמש מהרשימה
+            activeRooms[blockId] = activeRooms[blockId].filter(userId => userId !== socket.id);
+    
+            // ✅ אם המנטור עוזב, יש לאפס את המנטור ולהעביר את כל המשתמשים **באותו חדר בלבד** ללובי
+            if (mentors[blockId] === socket.id) {
+                console.log(`🚨 המנטור ${socket.id} עזב את החדר ${blockId}. מעבירים את כולם ללובי...`);
+    
+                // ✅ שליחת הודעה **רק למשתמשים בחדר הזה** שיעברו ללובי
+                io.to(blockId).emit("mentorLeft", { blockId });
+    
+                // ✅ כל משתמש יוצא מהחדר בשרת
+                activeRooms[blockId].forEach(userSocketId => {
+                    io.sockets.sockets.get(userSocketId)?.leave(blockId);
+                });
+    
+                // ✅ ניקוי רשימת המשתמשים בחדר
+                delete activeRooms[blockId];
+                delete mentors[blockId]; // ✅ איפוס המנטור
+            }
+    
+            // ✅ עדכון מספר המשתמשים במסד הנתונים
+            const updatedBlock = await CodeBlock.findByIdAndUpdate(
+                blockId,
+                { $set: { participants: activeRooms[blockId]?.length || 0 } },
+                { new: true }
+            );
+    
+            console.log(`✅ מספר המשתתפים בחדר ${blockId} לאחר עזיבה: ${updatedBlock?.participants}`);
+    
+            // ✅ שליחת עדכון לכל המשתמשים **שנשארו בחדר**
+            io.to(blockId).emit("roomUsers", {
+                userCount: updatedBlock?.participants || 0,
+                mentor: mentors[blockId] || null,
+                blockId: blockId
+            });
+    
+        } catch (error) {
+            console.error(`❌ שגיאה בהפחתת מספר המשתתפים:`, error);
+        }
+    });
+    
+    
+    
+    
     
     socket.on('disconnect', () => {
         console.log('❌ משתמש התנתק:', socket.id);

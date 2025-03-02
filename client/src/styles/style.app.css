@@ -1,0 +1,47 @@
+/* Global styling */
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(to right, #f8f9fa, #e9ecef);
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Main application wrapper */
+.appContainer {
+    width: 100vw;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Global button styling */
+button {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 10px 15px;
+    font-size: 16px;
+    font-weight: bold;
+    background-color: #608ebf;
+    color: white;
+    border: none;
+    border-radius: 6px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Title styling */
+.title {
+    font-size: 32px;
+    font-weight: bold;
+    text-align: center;
+    color: #333;
+    margin-bottom: 70px;
+}

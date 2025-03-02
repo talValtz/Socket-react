@@ -1,0 +1,63 @@
+/*  Centers the page and positions the title at the top */
+.codeBlockPage {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* 🔹 Positions the titles at the top */
+    text-align: center;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    position: relative;
+}
+
+/* Text area - centered and properly spaced from the title */
+.codeEditor {
+    width: 100%;
+    max-width: 600px;
+    height: 150px;
+    padding: 12px;
+    font-size: 18px;
+    border-radius: 8px;
+    border: 2px solid #527eae;
+    text-align: left;
+    resize: vertical;
+    margin-top: 80px; /*  Ensures spacing from the title */
+}
+
+/* ✅ Smiley - positioned over the text area */
+.smileyImage {
+    width: 200px;
+    height: 200px;
+    position: absolute;
+    top: 70%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.9;
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* ✅ General styles */
+.info {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.backButton {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 18px;
+    font-weight: bold;
+    background-color: #527eae;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+.backButton:hover {
+    background-color: #729ece;
+}
