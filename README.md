@@ -1,3 +1,8 @@
+### Live Demo
+The project is deployed and available online!
+
+https://js-lecture-react-socket.netlify.app/
+
 ### Code collab
 A real-time collaborative coding platform where multiple users can join code blocks, edit code together, and interact using Socket.io and MongoDB
 
